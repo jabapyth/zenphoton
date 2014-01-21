@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>zen photon garden</title>
+    <meta name="description" content="An interactive raytracer art-toy for HTML5 browsers." />
+    <meta name="apple-mobile-web-app-title" content="Zen photon">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=1210, height=907, minimum-scale=0.2, user-scalable=yes" />
+    <link rel="apple-touch-icon" href="logo-57.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="logo-72.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="logo-114.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="logo-144.png" />
+    <link rel="Shortcut Icon" href="favicon.ico" type="image/x-icon" />
+    <script src='zenphoton.js' type='text/javascript'></script>
+    <link rel="stylesheet" href="index.css" type="text/css" />
+</head>
+<body>
+    <div id='centerColumn'>
+
+        <h1>zen photon garden</h1>
+
+        <div id='workspace'>
+            <canvas id='histogramImage'></canvas>
+
+            <div id='notsupported' style='display:none'>
+                <h1>Oh no.</h1>
+                <p>Zen photon garden is an interactive raytracer art-toy for HTML5 browsers.</p>
+                <p>But it looks like your browser isn't supported!</p>
+                <p>Try the latest version of Chrome or Firefox.</p>
+                <p>(You'll need JavaScript, Canvas, Web Workers, and Typed Arrays.)</p>
+            </div>
+
+            <div id='help'>
+                Draw on me.
+            </div>
+
+            <div id='leftColumn'>
+                <div class='ui-box ui-inactive' id='pngButton'>Save PNG…</div>
+                <div class='ui-box ui-inactive' id='linkButton'>Share link…</div>
+                <div class='sep'>•</div>
+                <div class='show-segments-on-hover'>
+                    <div class='ui-box ui-inactive' id='undoButton'><span class='glyph'>↩</span>Undo</div>
+                    <div class='ui-box ui-inactive' id='redoButton'><span class='glyph'>↪</span>Redo</div>
+                    <div class='ui-box ui-inactive' id='clearButton'><span class='glyph'>×</span>Clear</div>
+                </div>
+                <div class='sep'>•</div>
+                <div class='ui-box' id='diffuseSlider'><div class='ui-hslider'></div>Diffuse</div>
+                <div class='ui-box' id='reflectiveSlider'><div class='ui-hslider'></div>Reflective</div>
+                <div class='ui-box' id='transmissiveSlider'><div class='ui-hslider'></div>Transmissive</div>
+            </div>
+
+            <div id='rightColumn'>
+                <div class='ui-box ui-inactive' id='exposureSlider'><span class='glyph'>↕</span>Exposure</div>
+            </div>
+
+        </div>
+
+        <div class='hbox'>
+
+            <div id='colophon'>
+                <a target="_blank" href="http://scanlime.org/category/projects/zen-photon-garden/">blog</a>
+                / <a target="_blank" href="https://github.com/scanlime/zenphoton">github</a>
+            </div>
+
+            <span class='label'>Rays traced:</span><span id='raysTraced'>0</span>
+            <span class='sep'>•</span>
+            <span class='label'>Speed:</span><span id='raySpeed'>0</span> rays/sec
+        </div>
+        <div class='hbox'>
+          <div class='sides'>
+            <textarea id='config' class='hcol'>
+{
+    "radius0": [
+        28.7,
+        10,
+        200
+    ],
+    "finalRadius": [
+        6.140000000000001,
+        0,
+        20
+    ],
+    "theta0": [
+        244.94,
+        0,
+        360
+    ],
+    "segments": [
+        3,
+        1,
+        50,
+        1
+    ],
+    "segLength": [
+        3.3000000000000003,
+        0,
+        20,
+        0.1
+    ],
+    "numCircles": [
+        2,
+        0.1,
+        6,
+        1
+    ],
+    "transmissive": [
+        0,
+        0,
+        1
+    ],
+    "diffuse": [
+        0.1,
+        0,
+        1
+    ],
+    "reflective": [
+        0.17,
+        0,
+        1
+    ]
+}
+              </textarea>
+              <div id="controls" class='hcol show-segments-on-hover'></div>
+            </div>
+            <textarea id='code'>
+// calculated, cached constants
+var deltaTheta  = (Math.PI * 2) * c.numCircles / c.segments
+  , deltaRadius = (c.finalRadius - c.radius0) / c.segments;
+
+var br=c.radius0,b=c.segments,d=Math.PI*2*c.numCircles/b;
+var inc = (c.finalRadius - c.radius0) / c.segments;
+
+function tangent(angle, radius, left, right) {
+  var cos = Math.cos(angle)
+    , sin = Math.sin(angle)
+    , cx = cos * radius + c.cx
+    , cy = sin * radius + c.cy
+    , x0 = cx - sin * left
+    , y0 = cy + cos * left
+    , x1 = cx + sin * right
+    , y1 = cy - cos * right
+  add_wall(x0, y0, x1, y1, c.diffuse, c.reflective, c.transmissive);
+}
+
+
+var rby = Math.PI*2 / c.segments
+  , r2by = (c.finalRadius - c.radius0) / c.numCircles
+for (var i=0; i<c.numCircles; i++) {
+  for (var m = 0; m<c.segments; m++) {
+    tangent(c.theta0 + m * rby + i*r2by, c.radius0 * (i/4 + .5), c.segLength*15, 0)
+  }
+}
+</textarea>
+            <div class='ui-button ui-inactive' id='evaluate-code'>Evaluate</div>
+            <div id='error-msg'></div>
+        </div>
+
+    </div>
+</body>
+</html>
